@@ -25,15 +25,14 @@
 
 package it.dockins.dockerslaves;
 
+import java.io.IOException;
+import java.util.logging.Logger;
+
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import it.dockins.dockerslaves.spi.DockerProvisioner;
-
-import java.io.IOException;
-import java.lang.Override;
-import java.util.logging.Logger;
 
 /**
  * Process launcher which uses docker exec instead of <code>execve</code>

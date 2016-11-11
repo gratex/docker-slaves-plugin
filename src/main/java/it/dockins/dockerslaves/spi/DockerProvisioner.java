@@ -1,13 +1,13 @@
 package it.dockins.dockerslaves.spi;
 
+import java.io.IOException;
+
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.model.TaskListener;
 import it.dockins.dockerslaves.Container;
 import it.dockins.dockerslaves.ContainersContext;
 import it.dockins.dockerslaves.DockerComputer;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>

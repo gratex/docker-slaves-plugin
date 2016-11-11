@@ -25,13 +25,13 @@
 
 package it.dockins.dockerslaves;
 
+import javax.annotation.CheckForNull;
+
 import hudson.model.InvisibleAction;
 import hudson.model.Label;
 import hudson.model.labels.LabelAssignmentAction;
 import hudson.model.queue.SubTask;
 import jenkins.model.Jenkins;
-
-import javax.annotation.CheckForNull;
 
 public class DockerSlaveAssignmentAction extends InvisibleAction implements LabelAssignmentAction {
 

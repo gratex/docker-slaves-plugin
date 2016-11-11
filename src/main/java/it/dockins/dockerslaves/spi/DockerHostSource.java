@@ -1,10 +1,10 @@
 package it.dockins.dockerslaves.spi;
 
+import java.io.IOException;
+
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Job;
-
-import java.io.IOException;
 
 /**
  * A DockerHostSource is responsible to determine (or provision) the dockerhost to host a build for the specified job.

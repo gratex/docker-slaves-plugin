@@ -25,6 +25,12 @@
 
 package it.dockins.dockerslaves.spec;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Util;
@@ -33,11 +39,6 @@ import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import it.dockins.dockerslaves.spi.DockerDriver;
 import jenkins.MasterToSlaveFileCallable;
-import org.apache.commons.io.FileUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>

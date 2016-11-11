@@ -25,31 +25,41 @@
 
 package it.dockins.dockerslaves.spec;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.Descriptor;
 import hudson.model.TaskListener;
 import it.dockins.dockerslaves.spi.DockerDriver;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
  */
-public class ImageIdContainerDefinition extends ContainerDefinition {
+public class ImageIdContainerDefinition extends ContainerDefinition implements Arguments {
 
     private final String image;
 
     private final boolean forcePull;
 
+	private final List<String> arguments;
+
     @DataBoundConstructor
-    public ImageIdContainerDefinition(String image, boolean forcePull) {
+    public ImageIdContainerDefinition(String image, List<String> arguments, boolean forcePull) {
         this.image = image;
+		this.arguments = arguments;
         this.forcePull = forcePull;
     }
 
-    public String getImage() {
+    @Override
+	public List<String> getArguments() {
+		return arguments;
+	}
+
+	public String getImage() {
         return image;
     }
 

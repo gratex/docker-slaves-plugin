@@ -23,41 +23,26 @@
  */
 package it.dockins.dockerslaves.pipeline;
 
-import hudson.AbortException;
-import hudson.Extension;
-import hudson.model.queue.QueueListener;
-import it.dockins.dockerslaves.DockerSlave;
-import it.dockins.dockerslaves.DockerSlaves;
-import it.dockins.dockerslaves.spec.ContainerSetDefinition;
-import it.dockins.dockerslaves.spec.ImageIdContainerDefinition;
-import it.dockins.dockerslaves.spec.SideContainerDefinition;
-import com.google.inject.Inject;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.EnvVars;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.model.Computer;
-import hudson.model.Executor;
-import hudson.model.Item;
-import hudson.model.Job;
-import hudson.model.Label;
-import hudson.model.Node;
-import hudson.model.Queue;
-import hudson.model.ResourceList;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.TopLevelItem;
-import hudson.model.queue.CauseOfBlockage;
-import hudson.model.queue.SubTask;
-import hudson.remoting.ChannelClosedException;
-import hudson.remoting.RequestAbortedException;
-import hudson.security.ACL;
-import hudson.security.AccessControlled;
-import hudson.security.Permission;
-import hudson.slaves.WorkspaceList;
-import jenkins.model.Jenkins;
-import jenkins.model.queue.AsynchronousExecution;
-import jenkins.util.Timer;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.WARNING;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.Authentication;
 import org.jenkinsci.plugins.durabletask.executors.ContinuableExecutable;
@@ -75,24 +60,43 @@ import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.export.ExportedBean;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.inject.Inject;
 
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.WARNING;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.AbortException;
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.Computer;
+import hudson.model.Executor;
+import hudson.model.Item;
+import hudson.model.Job;
+import hudson.model.Label;
+import hudson.model.Node;
+import hudson.model.Queue;
+import hudson.model.ResourceList;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.model.TopLevelItem;
+import hudson.model.queue.CauseOfBlockage;
+import hudson.model.queue.QueueListener;
+import hudson.model.queue.SubTask;
+import hudson.remoting.ChannelClosedException;
+import hudson.remoting.RequestAbortedException;
+import hudson.security.ACL;
+import hudson.security.AccessControlled;
+import hudson.security.Permission;
+import hudson.slaves.WorkspaceList;
+import it.dockins.dockerslaves.DockerSlave;
+import it.dockins.dockerslaves.DockerSlaves;
+import it.dockins.dockerslaves.spec.ContainerSetDefinition;
+import it.dockins.dockerslaves.spec.ImageIdContainerDefinition;
+import it.dockins.dockerslaves.spec.SideContainerDefinition;
+import it.dockins.dockerslaves.spi.DockerProvisioner;
+import jenkins.model.Jenkins;
+import jenkins.model.queue.AsynchronousExecution;
+import jenkins.util.Timer;
 
 /**
  * This class is heavily based (so to speak...) on org.jenkinsci.plugins.workflow.support.steps.ExecutorStepExecution
@@ -143,16 +147,20 @@ public class DockerNodeStepExecution extends AbstractStepExecutionImpl {
         List<SideContainerDefinition> sideContainers = new ArrayList<>();
         if (step.getSideContainers() != null) {
             for (String entry : step.getSideContainers()) {
-                sideContainers.add(new SideContainerDefinition(entry,
-                        new ImageIdContainerDefinition(entry, false)));
+                sideContainers.add(new SideContainerDefinition(entry, new ImageIdContainerDefinition(entry, Collections.<String>emptyList(), false)));
             }
         }
 
         ContainerSetDefinition spec = new ContainerSetDefinition(
-                new ImageIdContainerDefinition(step.getImage(), false), sideContainers);
+                new ImageIdContainerDefinition(step.getImage(), step.getArguments(), false), sideContainers);
 
-        final Node node = new DockerSlave(slaveName, description, label,
-                cloud.createProvisionerForPipeline(run.getParent(), spec), item);
+        DockerProvisioner dockerProvisioner = cloud.createProvisionerForPipeline(run.getParent(), spec);
+        if(step.getLinks() != null){
+        	dockerProvisioner.getContext().getContainerLinks().addAll(step.getLinks());
+        }
+
+        final Node node = new DockerSlave(slaveName, description, label, dockerProvisioner, item);
+        run.addAction(dockerProvisioner.getContext());
 
         Jenkins.getActiveInstance().addNode(node);
 
@@ -573,7 +581,11 @@ public class DockerNodeStepExecution extends AbstractStepExecutionImpl {
                         cookie = UUID.randomUUID().toString();
                         // Switches the label to a self-label, so if the executable is killed and restarted via ExecutorPickle, it will run on the same node:
                         label = computer.getName();
-
+//                        if(computer instanceof DockerComputer){
+//                        	DockerComputer dockerComputer = (DockerComputer) computer;
+//                        	ContainersContext containerContext = dockerComputer.getProvisioner().getContext();
+//                        	r.addAction(containerContext);
+//                        }
                         EnvVars env = computer.getEnvironment();
                         env.overrideAll(computer.buildEnvironment(listener));
                         env.put(COOKIE_VAR, cookie);

@@ -1,16 +1,17 @@
 package it.dockins.dockerslaves.spi;
 
-import hudson.EnvVars;
-import hudson.FilePath;
-import hudson.model.Item;
-import hudson.security.ACL;
+import java.io.Closeable;
+import java.io.IOException;
+
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
 import org.jenkinsci.plugins.docker.commons.credentials.KeyMaterial;
 
-import java.io.Closeable;
-import java.io.IOException;
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.model.Item;
+import hudson.security.ACL;
 
 /**
  * Configuration options used to access a specific (maybe dedicated to a build) Docker Host.

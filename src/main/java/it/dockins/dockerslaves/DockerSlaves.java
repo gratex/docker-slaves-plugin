@@ -25,6 +25,14 @@
 
 package it.dockins.dockerslaves;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
+import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.StaplerRequest;
+
 import hudson.Extension;
 import hudson.Plugin;
 import hudson.model.Describable;
@@ -37,12 +45,6 @@ import it.dockins.dockerslaves.spi.DockerProvisioner;
 import it.dockins.dockerslaves.spi.DockerProvisionerFactory;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
-import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
 
 /**
  * {@link Cloud} implementation designed to launch a set of containers (aka "pod") to establish a Jenkins executor.

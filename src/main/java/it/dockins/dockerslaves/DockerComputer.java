@@ -25,13 +25,13 @@
 
 package it.dockins.dockerslaves;
 
-import hudson.EnvVars;
-import it.dockins.dockerslaves.api.OneShotComputer;
-import hudson.slaves.ComputerLauncher;
-import it.dockins.dockerslaves.spi.DockerProvisioner;
-
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import hudson.EnvVars;
+import hudson.slaves.ComputerLauncher;
+import it.dockins.dockerslaves.api.OneShotComputer;
+import it.dockins.dockerslaves.spi.DockerProvisioner;
 
 /**
  * A computer on which a specific build will occur

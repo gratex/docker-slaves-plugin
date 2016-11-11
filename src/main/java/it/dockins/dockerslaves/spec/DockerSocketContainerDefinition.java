@@ -25,6 +25,11 @@
 
 package it.dockins.dockerslaves.spec;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -32,10 +37,6 @@ import hudson.model.Descriptor;
 import hudson.model.TaskListener;
 import it.dockins.dockerslaves.hints.VolumeHint;
 import it.dockins.dockerslaves.spi.DockerDriver;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Configure a sidecar container to expose the host's docker socket inside container set,

@@ -24,6 +24,9 @@
  */
 package it.dockins.dockerslaves.api;
 
+import java.io.IOException;
+import java.util.Collections;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.Computer;
@@ -41,9 +44,6 @@ import hudson.slaves.NodeProperty;
 import hudson.slaves.RetentionStrategy;
 import hudson.slaves.SlaveComputer;
 import jenkins.model.Jenkins;
-
-import java.io.IOException;
-import java.util.Collections;
 
 /**
  * A slave that is designed to be used only once, for a specific ${@link hudson.model.Run}, and as such has a life cycle

@@ -25,21 +25,23 @@
 
 package it.dockins.dockerslaves;
 
-import hudson.Extension;
-import it.dockins.dockerslaves.spi.DockerDriver;
-import it.dockins.dockerslaves.spec.ContainerSetDefinition;
-import hudson.model.Job;
-import hudson.model.Run;
-import it.dockins.dockerslaves.spi.DockerDriverFactory;
-import it.dockins.dockerslaves.spi.DockerProvisioner;
-import it.dockins.dockerslaves.spi.DockerProvisionerFactory;
-import it.dockins.dockerslaves.spi.DockerProvisionerFactoryDescriptor;
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
+import hudson.Extension;
+import hudson.model.Job;
+import hudson.model.Run;
+import it.dockins.dockerslaves.spec.ContainerSetDefinition;
+import it.dockins.dockerslaves.spi.DockerDriver;
+import it.dockins.dockerslaves.spi.DockerDriverFactory;
+import it.dockins.dockerslaves.spi.DockerProvisioner;
+import it.dockins.dockerslaves.spi.DockerProvisionerFactory;
+import it.dockins.dockerslaves.spi.DockerProvisionerFactoryDescriptor;
 
 public class DefaultDockerProvisionerFactory extends DockerProvisionerFactory {
 
@@ -102,6 +104,7 @@ public class DefaultDockerProvisionerFactory extends DockerProvisionerFactory {
     public DockerProvisioner createProvisionerForPipeline(Job job, ContainerSetDefinition spec) throws IOException, InterruptedException {
         final DockerDriver driver = dockerDriverFactory.forJob(job);
         ContainersContext context = new ContainersContext(false);
+        prepareWorkspace(job, context);
         return new DefaultDockerProvisioner(context, driver, spec, getRemotingImage(), getScmImage());
     }
 

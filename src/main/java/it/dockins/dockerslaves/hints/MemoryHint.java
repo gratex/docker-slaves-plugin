@@ -1,9 +1,10 @@
 package it.dockins.dockerslaves.hints;
 
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import hudson.Extension;
 import it.dockins.dockerslaves.spec.Hint;
 import it.dockins.dockerslaves.spec.HintDescriptor;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>

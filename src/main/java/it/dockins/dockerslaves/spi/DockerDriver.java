@@ -1,16 +1,16 @@
 package it.dockins.dockerslaves.spi;
 
-import hudson.Launcher;
-import hudson.Proc;
-import hudson.model.TaskListener;
-import hudson.slaves.SlaveComputer;
-import it.dockins.dockerslaves.Container;
-import it.dockins.dockerslaves.DockerComputer;
-import it.dockins.dockerslaves.spec.Hint;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+
+import hudson.Launcher;
+import hudson.Proc;
+import hudson.model.TaskListener;
+import it.dockins.dockerslaves.Container;
+import it.dockins.dockerslaves.DockerComputer;
+import it.dockins.dockerslaves.spec.Hint;
 
 /**
  * Manage Docker resources creation and access so docker-slaves can run a build.
@@ -25,9 +25,9 @@ public abstract class DockerDriver implements Closeable {
 
     public abstract boolean hasContainer(TaskListener listener, String id) throws IOException, InterruptedException;
 
-    public abstract Container launchRemotingContainer(TaskListener listener, String image, String workdir, DockerComputer computer) throws IOException, InterruptedException;
+    public abstract Container launchRemotingContainer(TaskListener listener, String image, String workdir, DockerComputer computer, Set<String> containerLinks) throws IOException, InterruptedException;
 
-    public abstract Container launchBuildContainer(TaskListener listener, String image, Container remotingContainer, List<Hint> hints) throws IOException, InterruptedException;
+    public abstract Container launchBuildContainer(TaskListener listener, String image, Container remotingContainer, List<Hint> hints, List<String> arguments) throws IOException, InterruptedException;
 
     public abstract Container launchSideContainer(TaskListener listener, String image, Container remotingContainer, List<Hint> hints) throws IOException, InterruptedException;
 

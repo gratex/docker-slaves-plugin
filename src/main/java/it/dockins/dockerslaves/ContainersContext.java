@@ -25,12 +25,14 @@
 
 package it.dockins.dockerslaves;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import hudson.model.BuildBadgeAction;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ContainersContext implements BuildBadgeAction {
 
@@ -48,6 +50,8 @@ public class ContainersContext implements BuildBadgeAction {
      * Flag to indicate the SCM checkout build phase is running.
      */
     private transient boolean preScm;
+
+	protected Set<String> containerLinks = new HashSet<String>();
 
     public ContainersContext() {
         preScm = true;
@@ -95,6 +99,10 @@ public class ContainersContext implements BuildBadgeAction {
 
     public void setScmContainer(Container scmContainer) {
         this.scmContainer = scmContainer;
+    }
+
+    public Set<String> getContainerLinks() {
+    	return containerLinks;
     }
 
     public Map<String, Container> getSideContainers() {

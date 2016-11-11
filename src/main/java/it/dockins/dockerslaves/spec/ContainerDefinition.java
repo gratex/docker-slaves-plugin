@@ -25,16 +25,16 @@
 
 package it.dockins.dockerslaves.spec;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.kohsuke.stapler.DataBoundSetter;
+
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.TaskListener;
 import it.dockins.dockerslaves.spi.DockerDriver;
-import org.kohsuke.stapler.DataBoundSetter;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
@@ -55,4 +55,5 @@ public abstract class ContainerDefinition extends AbstractDescribableImpl<Contai
     public abstract String getImage(DockerDriver driver, FilePath workspace, TaskListener listener) throws IOException, InterruptedException;
 
     public void setupEnvironment(EnvVars env) {}
+
 }

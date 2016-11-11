@@ -1,10 +1,10 @@
 package it.dockins.dockerslaves.spi;
 
+import java.io.IOException;
+
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Job;
 import it.dockins.dockerslaves.spec.ContainerSetDefinition;
-
-import java.io.IOException;
 
 /**
  * This component is responsible to orchestrate the provisioning of a build environment based on configured

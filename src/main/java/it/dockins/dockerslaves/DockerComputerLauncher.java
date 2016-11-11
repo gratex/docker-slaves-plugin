@@ -25,13 +25,13 @@
 
 package it.dockins.dockerslaves;
 
+import java.io.IOException;
+import java.util.logging.Logger;
+
 import hudson.model.TaskListener;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.SlaveComputer;
 import it.dockins.dockerslaves.spi.DockerProvisioner;
-
-import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Launchs initials containers

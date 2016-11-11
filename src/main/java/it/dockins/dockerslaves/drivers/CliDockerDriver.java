@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *  
+ *
  *  Copyright (c) 2015, CloudBees, Inc.
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,13 +25,30 @@
 
 package it.dockins.dockerslaves.drivers;
 
+import static it.dockins.dockerslaves.DockerSlave.SLAVE_ROOT;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tools.tar.TarEntry;
+import org.apache.tools.tar.TarInputStream;
+import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
+
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.model.Slave;
 import hudson.model.TaskListener;
 import hudson.org.apache.tools.tar.TarOutputStream;
 import hudson.slaves.CommandLauncher;
-import hudson.slaves.SlaveComputer;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VersionNumber;
 import it.dockins.dockerslaves.Container;
@@ -43,22 +60,6 @@ import it.dockins.dockerslaves.hints.VolumeHint;
 import it.dockins.dockerslaves.spec.Hint;
 import it.dockins.dockerslaves.spi.DockerDriver;
 import it.dockins.dockerslaves.spi.DockerHostConfig;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.tools.tar.TarEntry;
-import org.apache.tools.tar.TarInputStream;
-import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static it.dockins.dockerslaves.DockerSlave.SLAVE_ROOT;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
@@ -146,7 +147,7 @@ public class CliDockerDriver extends DockerDriver {
     }
 
     @Override
-    public Container launchRemotingContainer(TaskListener listener, String image, String volume, DockerComputer computer) throws IOException, InterruptedException {
+    public Container launchRemotingContainer(TaskListener listener, String image, String volume, DockerComputer computer, Set<String> containerLinks) throws IOException, InterruptedException {
 
         // Create a container for remoting
         ArgumentListBuilder args = new ArgumentListBuilder()
@@ -157,8 +158,15 @@ public class CliDockerDriver extends DockerDriver {
 
             .add("--env", "TMPDIR="+ SLAVE_ROOT+".tmp")
             .add("--user", "10000:10000")
-            .add("--volume", volume+":"+ SLAVE_ROOT)
-            .add(image)
+            .add("--volume", volume+":"+ SLAVE_ROOT);
+
+        if(containerLinks != null && !containerLinks.isEmpty()){
+           for(String link: containerLinks){
+        	   args.add("--link", link);
+           }
+        }
+
+        args.add(image)
             .add("java")
             // set TMP directory within the /home/jenkins/ volume so it can be shared with other containers
             .add("-Djava.io.tmpdir="+ SLAVE_ROOT+".tmp")
@@ -189,7 +197,7 @@ public class CliDockerDriver extends DockerDriver {
     }
 
     @Override
-    public Container launchBuildContainer(TaskListener listener, String image, Container remotingContainer, List<Hint> hints) throws IOException, InterruptedException {
+    public Container launchBuildContainer(TaskListener listener, String image, Container remotingContainer, List<Hint> hints, List<String> arguments) throws IOException, InterruptedException {
         Container buildContainer = new Container(image);
         ArgumentListBuilder args = new ArgumentListBuilder()
                 .add("create")
@@ -201,6 +209,9 @@ public class CliDockerDriver extends DockerDriver {
                 .add("--user", "10000:10000");
 
         applyHints(hints, args);
+        if(arguments != null && !arguments.isEmpty()){
+        	args.add(arguments.toArray(new String[0]));
+        }
 
         args.add(buildContainer.getImageName());
 

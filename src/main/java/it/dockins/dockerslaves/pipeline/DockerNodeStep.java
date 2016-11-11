@@ -23,7 +23,18 @@
  */
 package it.dockins.dockerslaves.pipeline;
 
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.CheckForNull;
+
+import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
+import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+
 import com.google.common.collect.ImmutableSet;
+
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -32,14 +43,6 @@ import hudson.Util;
 import hudson.model.Computer;
 import hudson.model.Executor;
 import hudson.model.Node;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-
-import javax.annotation.CheckForNull;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Provisions a Docker container and run the closure into it like node would do for a normal node
@@ -59,6 +62,10 @@ public class DockerNodeStep extends AbstractStepImpl {
     @CheckForNull
     private final String image;
 
+    private List<String> arguments;
+
+	private Set<String> links;
+
     @DataBoundConstructor
     public DockerNodeStep(String image) {
         this.image = Util.fixEmptyAndTrim(image);
@@ -73,12 +80,30 @@ public class DockerNodeStep extends AbstractStepImpl {
         return sideContainers;
     }
 
+    public Set<String> getLinks() {
+    	return links;
+    }
+
+    public List<String> getArguments() {
+		return arguments;
+	}
+
     @DataBoundSetter
     public void setSideContainers(List<String> sideContainers) {
         this.sideContainers = sideContainers;
     }
 
-    @Extension(optional = true)
+    @DataBoundSetter
+    public void setArguments(List<String> arguments) {
+        this.arguments = arguments;
+    }
+
+    @DataBoundSetter
+    public void setLinks(Set<String> links) {
+		this.links = links;
+	}
+
+	@Extension(optional = true)
     public static final class DescriptorImpl extends AbstractStepDescriptorImpl {
         public DescriptorImpl() {
             super(DockerNodeStepExecution.class);

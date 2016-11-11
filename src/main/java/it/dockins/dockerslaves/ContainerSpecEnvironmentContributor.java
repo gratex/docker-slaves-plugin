@@ -1,5 +1,9 @@
 package it.dockins.dockerslaves;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.EnvironmentContributor;
@@ -8,9 +12,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import it.dockins.dockerslaves.spec.ContainerSetDefinition;
 import it.dockins.dockerslaves.spec.SideContainerDefinition;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>

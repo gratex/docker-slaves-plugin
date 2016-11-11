@@ -25,7 +25,10 @@
 
 package it.dockins.dockerslaves;
 
-import it.dockins.dockerslaves.spec.ContainerSetDefinition;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Computer;
@@ -35,11 +38,8 @@ import hudson.model.Queue;
 import hudson.model.queue.QueueListener;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProvisioner;
+import it.dockins.dockerslaves.spec.ContainerSetDefinition;
 import jenkins.model.Jenkins;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * {@link Cloud} API is designed to launch virtual machines, which is an heavy process, so relies on

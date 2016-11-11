@@ -1,16 +1,17 @@
 package it.dockins.dockerslaves;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import hudson.Extension;
 import hudson.model.Job;
 import it.dockins.dockerslaves.spi.DockerHostConfig;
-import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.docker.commons.credentials.DockerServerEndpoint;
-import org.kohsuke.stapler.DataBoundConstructor;
 import it.dockins.dockerslaves.spi.DockerHostSource;
 import it.dockins.dockerslaves.spi.DockerHostSourceDescriptor;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:nicolas.deloof@gmail.com">Nicolas De Loof</a>
